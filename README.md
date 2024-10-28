@@ -3,6 +3,9 @@ Script to improve vMotion. It removes an single vmkernel port and add two vmkern
 
 
 ## This script has the following links like source: 
+
+https://knowledge.broadcom.com/external/article/318899/multiplenic-vmotion-in-vsphere.html
+
 https://blog.yahyazahedi.com/2019/10/19/add-vmkernel-adapter-to-a-number-of-esxi-host/
 
 https://collectingwisdom.com/powershell-split-string-multiple-delimiters/
