@@ -561,13 +561,16 @@ Switch ($choiceRange)
             #Input the number of last octect of first vmkernel vMotion Adapter(odd)
             [System.Int32]$lastIPOctectOddvMotionNet = 3
 
-
-            #Remove Single vMotion vmKernel Adapter
+                      
+	    #GET INFO RELATED TO EXISTING VMOTION ADAPTER
             $vmkvMotionAdapter = $esxiHostObj | get-vmhostnetworkadapter | Where-Object -FilterScript {$PSItem.IP -like '192.168.0*'}
-        
+
+            [System.Int32]$vmkvMotionAdapterMTU = $vmkvMotionAdapter.Mtu	
+
+	    #Remove Single vMotion vmKernel Adapter
             $vmkvMotionAdapter | Remove-VMHostNetworkAdapter -Confirm:$true -Verbose
 
-            #Remove Port Group
+     	    #Remove Port Group
             $vmkPortGroup = $esxiHostObj | Get-VirtualPortGroup | Where-Object -FilterScript {$PSItem.Name -like 'vMotion*'}
 
             Remove-VirtualPortGroup -VirtualPortGroup $vmkPortGroup -Confirm:$true -Verbose
@@ -624,9 +627,9 @@ Switch ($choiceRange)
             
             #create New Port Groups - vMotion-A and vMotion-B
 
-            New-VMHostNetworkAdapter -VMHost $esxiHost -PortGroup $vPortGroupAName -VirtualSwitch $vSwitchStdObj -Mtu 9000 -IP $vMotionAIP -SubnetMask $vMotionSubnetMask -VMotionEnabled $true -Verbose
+            New-VMHostNetworkAdapter -VMHost $esxiHost -PortGroup $vPortGroupAName -VirtualSwitch $vSwitchStdObj -Mtu $vmkvMotionAdapterMTU -IP $vMotionAIP -SubnetMask $vMotionSubnetMask -VMotionEnabled $true -Verbose
         
-            New-VMHostNetworkAdapter -VMHost $esxiHost -PortGroup $vPortGroupBName -VirtualSwitch $vSwitchStdObj -Mtu 9000 -IP $vMotionBIP -SubnetMask $vMotionSubnetMask -VMotionEnabled $true -Verbose
+            New-VMHostNetworkAdapter -VMHost $esxiHost -PortGroup $vPortGroupBName -VirtualSwitch $vSwitchStdObj -Mtu $vmkvMotionAdapterMTU -IP $vMotionBIP -SubnetMask $vMotionSubnetMask -VMotionEnabled $true -Verbose
             
             }#end of ElseIf
         else{
@@ -676,9 +679,12 @@ foreach ($esxiHost in $esxiHostListName)
 
         $esxiHostObj = Get-VMHost -Name $esxiHost
 
-        #Remove Single vMotion vmKernel Adapter
-        $vmkvMotionAdapter = $esxiHostObj | get-vmhostnetworkadapter | Where-Object -FilterScript {$PSItem.IP -like '192.168.0*'}
+        #GET INFO RELATED TO EXISTING VMOTION ADAPTER
+        $vmkvMotionAdapter = $esxiHostObj | get-vmhostnetworkadapter | Where-Object -FilterScript {$PSItem.IP -like '10.143.38*'}
+
+        [System.Int32]$vmkvMotionAdapterMTU = $vmkvMotionAdapter.Mtu
         
+        #Remove Single vMotion vmKernel Adapter
         $vmkvMotionAdapter | Remove-VMHostNetworkAdapter -Confirm:$true -Verbose
 
         #Remove Port Group
